@@ -1,0 +1,134 @@
+<script>
+  const STORAGE_KEY = "monoart_feed_posts_v2";
+  const THEME_KEY = "monoart_theme_v1";
+
+  let posts = [];
+
+  function loadPosts() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+    return [];
+  }
+
+  function savePosts() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+  }
+
+  function safeSavePosts() {
+    try {
+      savePosts();
+      return true;
+    } catch (e) {
+      alert("画像が大きすぎます！");
+      return false;
+    }
+  }
+
+  function drawWatermark(ctx, text, width, height) {
+    if (!text) return;
+
+    const mark = `@${text}`;
+    const fontSize = Math.max(36, Math.floor(width * 0.09));
+
+    ctx.save();
+
+    ctx.translate(width / 2, height / 2);
+    ctx.rotate(-Math.PI / 6);
+
+    ctx.font = `900 ${fontSize}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.strokeStyle = "rgba(0,0,0,0.3)";
+    ctx.lineWidth = fontSize * 0.05;
+    ctx.strokeText(mark, 0, 0);
+
+    ctx.fillStyle = "rgba(255,255,255,0.25)";
+    ctx.fillText(mark, 0, 0);
+
+    ctx.restore();
+  }
+
+  function resizeImage(file, userName, maxWidth = 1200, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = e => {
+        const img = new Image();
+
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = height * (maxWidth / width);
+            width = maxWidth;
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // 🔥 透かし
+          drawWatermark(ctx, userName, width, height);
+
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+
+        img.src = e.target.result;
+      };
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function addPost() {
+    const userName = document.getElementById("userName").value.trim();
+    const file = document.getElementById("artImageFile").files[0];
+    const description = document.getElementById("artDesc").value.trim();
+
+    if (!userName || !file) {
+      alert("ユーザー名と画像必須！");
+      return;
+    }
+
+    try {
+      const image = await resizeImage(file, userName, 1200, 0.7);
+
+      const post = {
+        id: crypto.randomUUID(),
+        userName,
+        image,
+        description,
+        likes: 0,
+        comments: []
+      };
+
+      posts.unshift(post);
+
+      if (!safeSavePosts()) return;
+
+      render();
+    } catch (e) {
+      alert("失敗！");
+    }
+  }
+
+  function render() {
+    const timeline = document.getElementById("timeline");
+
+    timeline.innerHTML = posts.map(p => `
+      <div style="padding:20px;border-bottom:1px solid #333;">
+        <b>${p.userName}</b><br>
+        ${p.description}<br>
+        <img src="${p.image}" style="max-width:100%;margin-top:10px;">
+      </div>
+    `).join("");
+  }
+
+  posts = loadPosts();
+  render();
+</script>
