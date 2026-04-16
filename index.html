@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MonoArt Feed</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #000;
+      --text: #e7e9ea;
+      --muted: #71767b;
+      --border: #2f3336;
+      --hover: #16181c;
+      --panel: #16181c;
+      --card: #111214;
+      --input-bg: transparent;
+      --button-bg: #eff3f4;
+      --button-text: #0f1419;
+      --image-bg: #111;
+      --profile-border: #000;
+      --topbar-bg: rgba(0, 0, 0, 0.85);
+    }
+
+    body.light {
+      --bg: #f7f9fa;
+      --text: #0f1419;
+      --muted: #536471;
+      --border: #d7dbdf;
+      --hover: #eef1f3;
+      --panel: #ffffff;
+      --card: #f5f7f8;
+      --input-bg: #ffffff;
+      --button-bg: #0f1419;
+      --button-text: #ffffff;
+      --image-bg: #f0f2f4;
+      --profile-border: #f7f9fa;
+      --topbar-bg: rgba(247, 249, 250, 0.85);
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Yu Gothic", sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px 1fr 300px;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--border);
+      padding: 12px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .logo {
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-size: 26px;
+      margin-bottom: 12px;
+    }
+
+    .logo:hover,
+    .nav-item:hover,
+    .profile-link:hover,
+    .back-btn:hover,
+    .icon-btn:hover,
+    .submit-btn:hover,
+    .small-btn:hover,
+    .danger-btn:hover,
+    .theme-btn:hover,
+    .file-label:hover,
+    .ai-send-btn:hover,
+    .ai-fab:hover {
+      background: var(--hover);
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      width: fit-content;
+      padding: 14px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .nav-item.active {
+      font-weight: 700;
+    }
+
+    .sidebar-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 0 6px;
+    }
+
+    .theme-wrap {
+      margin-top: 18px;
+      padding: 0 6px;
+    }
+
+    .theme-btn {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .main {
+      border-right: 1px solid var(--border);
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      background: var(--topbar-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .composer,
+    .post {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .composer-main,
+    .post-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .composer-title {
+      font-size: 20px;
+      margin-bottom: 12px;
+      color: var(--muted);
+    }
+
+    .field,
+    .textarea,
+    .comment-input,
+    .file-label,
+    .ai-input {
+      width: 100%;
+      background: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .field:focus,
+    .textarea:focus,
+    .comment-input:focus,
+    .ai-input:focus {
+      border-color: var(--muted);
+    }
+
+    .textarea {
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    .field::placeholder,
+    .textarea::placeholder,
+    .comment-input::placeholder,
+    .ai-input::placeholder {
+      color: var(--muted);
+    }
+
+    .composer-fields {
+      display: grid;
+      gap: 10px;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .file-label {
+      display: block;
+      cursor: pointer;
+    }
+
+    .file-name {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 0 4px;
+    }
+
+    .composer-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .submit-btn,
+    .small-btn,
+    .danger-btn,
+    .ai-send-btn,
+    .ai-fab {
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: 700;
+    }
+
+    .submit-btn,
+    .ai-send-btn,
+    .ai-fab {
+      background: var(--button-bg);
+      color: var(--button-text);
+      padding: 10px 18px;
+      font-size: 15px;
+    }
+
+    .submit-btn:disabled,
+    .ai-send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .small-btn,
+    .danger-btn {
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .name {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .profile-link {
+      border-radius: 999px;
+      padding: 2px 6px;
+      margin-left: -6px;
+      cursor: pointer;
+    }
+
+    .user-id,
+    .time-dot,
+    .time-text,
+    .muted {
+      color: var(--muted);
+    }
+
+    .post-text {
+      white-space: pre-wrap;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 12px;
+      margin-top: 8px;
+    }
+
+    .post-image {
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      display: block;
+      margin-top: 10px;
+      max-height: 520px;
+      object-fit: cover;
+      background: var(--image-bg);
+    }
+
+    .post-actions {
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .post-actions-left {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .comment-box,
+    .comments {
+      display: none;
+    }
+
+    .comment-box.open,
+    .comments.open {
+      display: block;
+    }
+
+    .comment-box {
+      margin-top: 12px;
+    }
+
+    .comment-controls {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    .comments {
+      margin-top: 10px;
+    }
+
+    .comments-inner {
+      display: grid;
+      gap: 8px;
+    }
+
+    .comment-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .empty {
+      padding: 40px 20px;
+      color: var(--muted);
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .rightbar {
+      padding: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .panel p,
+    .panel li {
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .panel ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .profile-page {
+      display: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .profile-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .profile-banner {
+      height: 140px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #1b1b1b, #3a3a3a);
+      border: 1px solid var(--border);
+    }
+
+    .profile-meta {
+      margin-top: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .profile-avatar {
+      width: 72px;
+      height: 72px;
+      min-width: 72px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #4a4a4a, #202020);
+      border: 4px solid var(--profile-border);
+      margin-top: -28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 22px;
+      color: #fff;
+    }
+
+    .profile-name {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 18px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+
+    .stats strong {
+      color: var(--text);
+    }
+
+    .ai-fab {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 50;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .ai-panel {
+      position: fixed;
+      right: 18px;
+      bottom: 76px;
+      width: 340px;
+      max-width: calc(100vw - 24px);
+      height: 520px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 60;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .ai-panel.open {
+      display: flex;
+    }
+
+    .ai-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+    }
+
+    .ai-close {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .ai-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      background: var(--bg);
+    }
+
+    .ai-message {
+      max-width: 88%;
+      padding: 10px 12px;
+      border-radius: 16px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      font-size: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .ai-message.user {
+      margin-left: auto;
+      background: var(--panel);
+    }
+
+    .ai-message.assistant {
+      margin-right: auto;
+      background: var(--card);
+    }
+
+    .ai-footer {
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      gap: 8px;
+      background: var(--panel);
+    }
+
+    .ai-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .ai-hints {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ai-chip {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 88px 1fr;
+      }
+
+      .rightbar {
+        display: none;
+      }
+
+      .nav-text,
+      .sidebar-note {
+        display: none;
+      }
+
+      .nav-item {
+        justify-content: center;
+        width: 56px;
+        padding: 14px 0;
+      }
+
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .theme-wrap {
+        width: 56px;
+        padding: 0;
+      }
+
+      .theme-btn {
+        padding: 10px 0;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .layout {
+        display: block;
+      }
+
+      .sidebar,
+      .rightbar {
+        display: none;
+      }
+
+      .main {
+        border-right: none;
+      }
+
+      .composer,
+      .post,
+      .topbar,
+      .profile-head {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .ai-panel {
+        right: 12px;
+        left: 12px;
+        width: auto;
+        bottom: 72px;
+        height: 62vh;
+      }
+
+      .ai-fab {
+        right: 12px;
+        bottom: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="logo">●</div>
+
+      <nav class="nav">
+        <div class="nav-item active">
+          <span>⌂</span>
+          <span class="nav-text">ホーム</span>
+        </div>
+        <div class="nav-item" onclick="goHome()">
+          <span>✎</span>
+          <span class="nav-text">投稿</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-note">
+        モノトーンのイラスト投稿サイト。<br>
+        コメントといいねだけのシンプルな交流用です。
+      </div>
+
+      <div class="theme-wrap">
+        <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">☾ ダーク</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar" id="topbarTitle">ホーム</div>
+
+      <section id="homePage">
+        <div class="composer">
+          <div class="row">
+            <div class="avatar" id="composerAvatar">U</div>
+
+            <div class="composer-main">
+              <div class="composer-title">作品を投稿する</div>
+
+              <div class="composer-fields">
+                <input id="userName" class="field" type="text" placeholder="ユーザー名">
+
+                <label for="artImageFile" class="file-label">画像を選択</label>
+                <input id="artImageFile" class="file-input" type="file" accept="image/*">
+                <div id="fileName" class="file-name">ファイル未選択</div>
+
+                <textarea id="artDesc" class="textarea" placeholder="作品の説明やこだわりを書く"></textarea>
+              </div>
+
+              <div class="composer-actions">
+                <button id="submitBtn" class="submit-btn" onclick="addPost()">投稿する</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <section id="timeline"></section>
+      </section>
+
+      <section id="profilePage" class="profile-page"></section>
+    </main>
+
+    <aside class="rightbar">
+      <div class="panel">
+        <h2 class="panel-title">このサイトについて</h2>
+        <p>
+          X風の見た目で作った、イラスト投稿用の小さなWeb作品です。
+          投稿、コメント、いいね、プロフィール表示ができます。
+        </p>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-title">ポイント</h2>
+        <ul>
+          <li>モノトーンのタイムラインUI</li>
+          <li>ユーザー名クリックでプロフィール表示</li>
+          <li>再読み込みしても投稿が消えない</li>
+          <li>投稿画像に大きい透かしを自動追加</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <button class="ai-fab" onclick="toggleAiPanel()">AI相談</button>
+
+  <section id="aiPanel" class="ai-panel">
+    <div class="ai-head">
+      <span>AI相談</span>
+      <button class="ai-close" onclick="toggleAiPanel()">✕</button>
+    </div>
+
+    <div id="aiMessages" class="ai-messages"></div>
+
+    <div class="ai-footer">
+      <div class="ai-hints">
+        <button class="ai-chip" onclick="fillAiPrompt('この作品の説明文を考えて')">説明文</button>
+        <button class="ai-chip" onclick="fillAiPrompt('この作品の感想をやさしく書いて')">感想</button>
+        <button class="ai-chip" onclick="fillAiPrompt('ハッシュタグ案を5個ちょうだい')">タグ</button>
+      </div>
+
+      <textarea id="aiInput" class="ai-input" rows="3" placeholder="作品について相談してみよう"></textarea>
+
+      <div class="ai-actions">
+        <button id="aiSendBtn" class="ai-send-btn" onclick="sendAiMessage()">送信</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const STORAGE_KEY = "monoart_feed_posts_v3";
+    const THEME_KEY = "monoart_theme_v1";
+    const AI_API_URL = "https://YOUR-VERCEL-PROJECT.vercel.app/api/chat";
+
+    const defaultPosts = [
+      {
+        id: crypto.randomUUID(),
+        userName: "yuri",
+        image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80",
+        description: "モノクロの雰囲気を意識してまとめた作品です。",
+        likes: 4,
+        comments: ["雰囲気がすごく好き", "世界観がきれい"],
+        commentOpen: false,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: crypto.randomUUID(),
+        userName: "mika",
+        image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
+        description: "落ち着いた空気感をテーマにしたイラスト投稿です。",
+        likes: 2,
+        comments: [],
+        commentOpen: false,
+        createdAt: new Date(Date.now() - 3600 * 1000 * 5).toISOString()
+      }
+    ];
+
+    let aiHistory = [
+      {
+        role: "assistant",
+        content: "こんにちは！作品の説明文、感想、タグ案、投稿文づくりを手伝えるよ。"
+      }
+    ];
+
+    function loadPosts() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error("読み込みエラー", e);
+        }
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultPosts));
+      return defaultPosts;
+    }
+
+    let posts = loadPosts();
+
+    function savePosts() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+    }
+
+    function safeSavePosts() {
+      try {
+        savePosts();
+        return true;
+      } catch (e) {
+        console.error("保存エラー", e);
+        alert("画像が大きすぎて保存できませんでした。画像を少し軽くするか、枚数を減らして試してください。");
+        return false;
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text ?? "";
+      return div.innerHTML;
+    }
+
+    function getInitial(name) {
+      if (!name) return "U";
+      return name.trim().charAt(0).toUpperCase();
+    }
+
+    function formatTime(iso) {
+      const date = new Date(iso);
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      const h = String(date.getHours()).padStart(2, "0");
+      const min = String(date.getMinutes()).padStart(2, "0");
+      return `${y}/${m}/${d} ${h}:${min}`;
+    }
+
+    function applyTheme(theme) {
+      if (theme === "light") {
+        document.body.classList.add("light");
+      } else {
+        document.body.classList.remove("light");
+      }
+
+      const btn = document.getElementById("themeToggle");
+      if (btn) {
+        btn.textContent = theme === "light" ? "☀ ライト" : "☾ ダーク";
+      }
+    }
+
+    function loadTheme() {
+      const savedTheme = localStorage.getItem(THEME_KEY) || "dark";
+      applyTheme(savedTheme);
+    }
+
+    function toggleTheme() {
+      const nextTheme = document.body.classList.contains("light") ? "dark" : "light";
+      localStorage.setItem(THEME_KEY, nextTheme);
+      applyTheme(nextTheme);
+    }
+
+    function updateComposerAvatar() {
+      const userName = document.getElementById("userName").value.trim();
+      document.getElementById("composerAvatar").textContent = getInitial(userName);
+    }
+
+    function updateFileName() {
+      const input = document.getElementById("artImageFile");
+      const fileName = document.getElementById("fileName");
+      const file = input.files[0];
+      fileName.textContent = file ? file.name : "ファイル未選択";
+    }
+
+    function setSubmitting(isSubmitting) {
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = isSubmitting;
+      btn.textContent = isSubmitting ? "投稿中..." : "投稿する";
+    }
+
+    function drawWatermark(ctx, text, width, height) {
+      if (!text) return;
+
+      const mark = `@${text}`;
+      const fontSize = Math.max(42, Math.floor(Math.min(width, height) * 0.14));
+
+      ctx.save();
+      ctx.translate(width / 2, height / 2);
+      ctx.rotate(-Math.PI / 6);
+
+      ctx.font = `900 ${fontSize}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.30)";
+      ctx.lineWidth = Math.max(3, Math.floor(fontSize * 0.07));
+      ctx.strokeText(mark, 0, 0);
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.24)";
+      ctx.fillText(mark, 0, 0);
+
+      ctx.restore();
+    }
+
+    function resizeImage(file, userName, maxWidth = 1200, quality = 0.72) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          const img = new Image();
+
+          img.onload = function() {
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            drawWatermark(ctx, userName, width, height);
+
+            const dataUrl = canvas.toDataURL("image/jpeg", quality);
+            resolve(dataUrl);
+          };
+
+          img.onerror = function() {
+            reject(new Error("画像の読み込みに失敗しました"));
+          };
+
+          img.src = e.target.result;
+        };
+
+        reader.onerror = function() {
+          reject(new Error("ファイルの読み込みに失敗しました"));
+        };
+
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function getLatestPostContext() {
+      const desc = document.getElementById("artDesc").value.trim();
+      const userName = document.getElementById("userName").value.trim();
+      const fileName = document.getElementById("fileName").textContent;
+
+      return `現在の入力状況:
+ユーザー名: ${userName || "未入力"}
+画像ファイル: ${fileName || "なし"}
+説明文: ${desc || "未入力"}`;
+    }
+
+    function toggleAiPanel() {
+      document.getElementById("aiPanel").classList.toggle("open");
+      renderAiMessages();
+    }
+
+    function fillAiPrompt(text) {
+      document.getElementById("aiInput").value = text;
+      document.getElementById("aiInput").focus();
+    }
+
+    function renderAiMessages() {
+      const box = document.getElementById("aiMessages");
+      box.innerHTML = aiHistory.map(item => `
+        <div class="ai-message ${item.role}">
+          ${escapeHtml(item.content)}
+        </div>
+      `).join("");
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function setAiSending(isSending) {
+      const btn = document.getElementById("aiSendBtn");
+      btn.disabled = isSending;
+      btn.textContent = isSending ? "送信中..." : "送信";
+    }
+
+    async function sendAiMessage() {
+      const input = document.getElementById("aiInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const composedMessage = `${text}
+
+${getLatestPostContext()}`;
+
+      aiHistory.push({ role: "user", content: text });
+      renderAiMessages();
+      input.value = "";
+      setAiSending(true);
+
+      try {
+        const response = await fetch(AI_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: composedMessage,
+            history: aiHistory
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "AIとの通信に失敗しました");
+        }
+
+        aiHistory.push({
+          role: "assistant",
+          content: data.reply || "うまく返答できなかったよ。もう一度試してみてね。"
+        });
+      } catch (error) {
+        aiHistory.push({
+          role: "assistant",
+          content: "接続に失敗しちゃった。VercelのURLかAPIキー設定を見直してみてね。"
+        });
+        console.error(error);
+      } finally {
+        setAiSending(false);
+        renderAiMessages();
+      }
+    }
+
+    document.getElementById("userName").addEventListener("input", updateComposerAvatar);
+    document.getElementById("artImageFile").addEventListener("change", updateFileName);
+    document.getElementById("aiInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendAiMessage();
+      }
+    });
+
+    async function addPost() {
+      const userName = document.getElementById("userName").value.trim();
+      const fileInput = document.getElementById("artImageFile");
+      const file = fileInput.files[0];
+      const description = document.getElementById("artDesc").value.trim();
+
+      if (!userName || !file) {
+        alert("ユーザー名・画像ファイルは必須です。");
+        return;
+      }
+
+      setSubmitting(true);
+
+      try {
+        const resizedImage = await resizeImage(file, userName, 1200, 0.72);
+
+        const newPost = {
+          id: crypto.randomUUID(),
+          userName,
+          image: resizedImage,
+          description,
+          likes: 0,
+          comments: [],
+          commentOpen: false,
+          createdAt: new Date().toISOString()
+        };
+
+        const previousPosts = [...posts];
+        posts.unshift(newPost);
+
+        const saved = safeSavePosts();
+        if (!saved) {
+          posts = previousPosts;
+          return;
+        }
+
+        renderTimeline();
+        clearForm();
+        goHome();
+      } catch (error) {
+        console.error(error);
+        alert("投稿に失敗しました。画像ファイルを変えてもう一度試してください。");
+      } finally {
+        setSubmitting(false);
+      }
+    }
+
+    function clearForm() {
+      document.getElementById("userName").value = "";
+      document.getElementById("artImageFile").value = "";
+      document.getElementById("artDesc").value = "";
+      document.getElementById("fileName").textContent = "ファイル未選択";
+      updateComposerAvatar();
+    }
+
+    function likePost(id) {
+      const post = posts.find(p => p.id === id);
+      if (!post) return;
+      post.likes += 1;
+      safeSavePosts();
+      renderTimeline();
+      refreshProfileIfOpen(post.userName);
+    }
+
+    function toggleComment(id) {
+      posts = posts.map(post => {
+        if (post.id === id) {
+          return { ...post, commentOpen: !post.commentOpen };
+        }
+        return post;
+      });
+      safeSavePosts();
+      renderTimeline();
+      refreshProfileIfOpen(window.currentProfileUser);
+    }
+
+    function addComment(id) {
+      const input = document.getElementById(`comment-${id}`);
+      if (!input) return;
+
+      const text = input.value.trim();
+      if (!text) return;
+
+      const post = posts.find(p => p.id === id);
+      if (!post) return;
+
+      post.comments.push(text);
+      post.commentOpen = false;
+      safeSavePosts();
+      renderTimeline();
+      refreshProfileIfOpen(post.userName);
+    }
+
+    function deletePost(id) {
+      const target = posts.find(p => p.id === id);
+      if (!target) return;
+
+      const ok = confirm("この投稿を削除しますか？");
+      if (!ok) return;
+
+      posts = posts.filter(p => p.id !== id);
+      safeSavePosts();
+      renderTimeline();
+      refreshProfileIfOpen(target.userName);
+      if (posts.length === 0) {
+        goHome();
+      }
+    }
+
+    function renderTimeline() {
+      const timeline = document.getElementById("timeline");
+
+      const sortedPosts = [...posts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      if (sortedPosts.length === 0) {
+        timeline.innerHTML = `<div class="empty">まだ投稿がありません。</div>`;
+        return;
+      }
+
+      timeline.innerHTML = sortedPosts.map(post => `
+        <article class="post">
+          <div class="row">
+            <div class="avatar">${escapeHtml(getInitial(post.userName))}</div>
+
+            <div class="post-main">
+              <div class="post-header">
+                <button class="profile-link" onclick="showProfile('${escapeHtml(post.userName)}')">
+                  <span class="name">${escapeHtml(post.userName)}</span>
+                </button>
+                <span class="user-id">@${escapeHtml(post.userName)}</span>
+                <span class="time-dot">·</span>
+                <span class="time-text">${formatTime(post.createdAt)}</span>
+              </div>
+
+              <div class="post-text">${escapeHtml(post.description)}</div>
+
+              <img class="post-image" src="${post.image}" alt="投稿画像">
+
+              <div class="post-actions">
+                <div class="post-actions-left">
+                  <button class="icon-btn" onclick="toggleComment('${post.id}')">💬 ${post.comments.length}</button>
+                  <button class="icon-btn" onclick="likePost('${post.id}')">♡ ${post.likes}</button>
+                </div>
+
+                <button class="danger-btn" onclick="deletePost('${post.id}')">削除</button>
+              </div>
+
+              <div class="comment-box ${post.commentOpen ? "open" : ""}">
+                <input id="comment-${post.id}" class="comment-input" type="text" placeholder="コメントを書く">
+                <div class="comment-controls">
+                  <button class="submit-btn" onclick="addComment('${post.id}')">送信</button>
+                </div>
+              </div>
+
+              <div class="comments ${post.commentOpen ? "open" : ""}">
+                <div class="comments-inner">
+                  ${post.comments.length === 0
+                    ? `<div class="comment-item">まだコメントはありません。</div>`
+                    : post.comments.map(comment => `
+                      <div class="comment-item">${escapeHtml(comment)}</div>
+                    `).join("")
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function showProfile(userName) {
+      const profilePage = document.getElementById("profilePage");
+      const homePage = document.getElementById("homePage");
+      const topbarTitle = document.getElementById("topbarTitle");
+
+      const userPosts = [...posts]
+        .filter(post => post.userName === userName)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      const totalLikes = userPosts.reduce((sum, post) => sum + post.likes, 0);
+      const totalComments = userPosts.reduce((sum, post) => sum + post.comments.length, 0);
+
+      profilePage.innerHTML = `
+        <div class="profile-head">
+          <button class="back-btn" onclick="goHome()">← 戻る</button>
+
+          <div class="profile-banner"></div>
+
+          <div class="profile-meta">
+            <div class="profile-avatar">${escapeHtml(getInitial(userName))}</div>
+
+            <div>
+              <div class="profile-name">${escapeHtml(userName)}</div>
+              <div class="muted">@${escapeHtml(userName)}</div>
+
+              <div class="stats">
+                <div><strong>${userPosts.length}</strong> 投稿</div>
+                <div><strong>${totalLikes}</strong> いいね</div>
+                <div><strong>${totalComments}</strong> コメント</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          ${userPosts.length === 0
+            ? `<div class="empty">このユーザーの投稿はまだありません。</div>`
+            : userPosts.map(post => `
+              <article class="post">
+                <div class="row">
+                  <div class="avatar">${escapeHtml(getInitial(post.userName))}</div>
+
+                  <div class="post-main">
+                    <div class="post-header">
+                      <span class="name">${escapeHtml(post.userName)}</span>
+                      <span class="user-id">@${escapeHtml(post.userName)}</span>
+                      <span class="time-dot">·</span>
+                      <span class="time-text">${formatTime(post.createdAt)}</span>
+                    </div>
+
+                    <div class="post-text">${escapeHtml(post.description)}</div>
+                    <img class="post-image" src="${post.image}" alt="投稿画像">
+
+                    <div class="post-actions">
+                      <div class="post-actions-left">
+                        <button class="icon-btn" onclick="toggleComment('${post.id}')">💬 ${post.comments.length}</button>
+                        <button class="icon-btn" onclick="likePost('${post.id}')">♡ ${post.likes}</button>
+                      </div>
+
+                      <button class="danger-btn" onclick="deletePost('${post.id}')">削除</button>
+                    </div>
+
+                    <div class="comment-box ${post.commentOpen ? "open" : ""}">
+                      <input id="comment-${post.id}" class="comment-input" type="text" placeholder="コメントを書く">
+                      <div class="comment-controls">
+                        <button class="submit-btn" onclick="addComment('${post.id}')">送信</button>
+                      </div>
+                    </div>
+
+                    <div class="comments ${post.commentOpen ? "open" : ""}">
+                      <div class="comments-inner">
+                        ${post.comments.length === 0
+                          ? `<div class="comment-item">まだコメントはありません。</div>`
+                          : post.comments.map(comment => `
+                            <div class="comment-item">${escapeHtml(comment)}</div>
+                          `).join("")
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            `).join("")}
+        </div>
+      `;
+
+      homePage.style.display = "none";
+      profilePage.style.display = "block";
+      topbarTitle.textContent = `${userName} のプロフィール`;
+      window.currentProfileUser = userName;
+    }
+
+    function goHome() {
+      document.getElementById("homePage").style.display = "block";
+      document.getElementById("profilePage").style.display = "none";
+      document.getElementById("topbarTitle").textContent = "ホーム";
+      window.currentProfileUser = null;
+    }
+
+    function refreshProfileIfOpen(userName) {
+      if (window.currentProfileUser && window.currentProfileUser === userName) {
+        showProfile(userName);
+      }
+    }
+
+    updateComposerAvatar();
+    loadTheme();
+    renderTimeline();
+    renderAiMessages();
+  </script>
+</body>
+</html>
