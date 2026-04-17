@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MonoArt Feed</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,600&family=Noto+Serif+JP:wght@500;700&display=swap');
+
     * {
       box-sizing: border-box;
     }
@@ -23,6 +25,9 @@
       --image-bg: #111;
       --profile-border: #000;
       --topbar-bg: rgba(0, 0, 0, 0.85);
+      --accent: #f2f5f7;
+      --accent-strong: #ffffff;
+      --success: #9fe7c2;
     }
 
     body.light {
@@ -39,6 +44,9 @@
       --image-bg: #f0f2f4;
       --profile-border: #f7f9fa;
       --topbar-bg: rgba(247, 249, 250, 0.85);
+      --accent: #0f1419;
+      --accent-strong: #000000;
+      --success: #117a4f;
     }
 
     body {
@@ -67,17 +75,24 @@
       position: sticky;
       top: 0;
       height: 100vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
     }
 
     .logo {
-      width: 52px;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 999px;
-      font-size: 26px;
+      width: 100%;
+      display: block;
+      border-radius: 0;
       margin-bottom: 12px;
+      padding: 4px 0 8px;
+      background: transparent;
+      border: none;
+    }
+
+    .logo-image {
+      display: block;
+      width: 100%;
+      height: auto;
     }
 
     .logo:hover,
@@ -123,6 +138,47 @@
       padding: 0 6px;
     }
 
+    .sidebar-block {
+      margin-top: 18px;
+      padding: 14px 12px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
+    }
+
+    .sidebar-label {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .sidebar-title {
+      margin: 0 0 8px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .sidebar-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .sidebar-list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
     .theme-wrap {
       margin-top: 18px;
       padding: 0 6px;
@@ -153,8 +209,23 @@
       background: var(--topbar-bg);
       border-bottom: 1px solid var(--border);
       padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .topbar-title {
       font-size: 20px;
       font-weight: 700;
+    }
+
+    .topbar-actions,
+    .auth-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .composer,
@@ -181,6 +252,10 @@
       font-weight: 700;
       font-size: 16px;
       border: 1px solid var(--border);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow: hidden;
     }
 
     .composer-main,
@@ -234,6 +309,43 @@
       gap: 10px;
     }
 
+    .section-toggles {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .toggle-chip {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .toggle-chip.active {
+      color: var(--text);
+      border-color: var(--muted);
+      background: var(--hover);
+    }
+
+    .collapsible-section {
+      display: grid;
+      gap: 10px;
+    }
+
+    .collapsible-section.hidden {
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
     .file-input {
       display: none;
     }
@@ -258,6 +370,8 @@
     .submit-btn,
     .small-btn,
     .danger-btn,
+    .ghost-btn,
+    .login-btn,
     .ai-send-btn,
     .ai-fab {
       border: none;
@@ -268,6 +382,7 @@
     }
 
     .submit-btn,
+    .login-btn,
     .ai-send-btn,
     .ai-fab {
       background: var(--button-bg);
@@ -277,17 +392,25 @@
     }
 
     .submit-btn:disabled,
-    .ai-send-btn:disabled {
+    .ai-send-btn:disabled,
+    .login-btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
 
     .small-btn,
-    .danger-btn {
+    .danger-btn,
+    .ghost-btn {
       background: transparent;
       color: var(--muted);
       padding: 8px 12px;
       font-size: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .ghost-btn.active {
+      color: var(--text);
+      border-color: var(--muted);
     }
 
     .post-header {
@@ -307,6 +430,9 @@
       padding: 2px 6px;
       margin-left: -6px;
       cursor: pointer;
+      border: none;
+      background: transparent;
+      color: inherit;
     }
 
     .user-id,
@@ -407,6 +533,139 @@
       border-bottom: 1px solid var(--border);
     }
 
+    .auth-panel {
+      display: grid;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
+    }
+
+    .auth-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .auth-copy {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .auth-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--success);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .auth-status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .auth-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
+
+    .auth-user-meta {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .auth-user-name {
+      font-weight: 700;
+    }
+
+    .auth-user-id {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .login-sheet {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.62);
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-sheet.open {
+      display: flex;
+    }
+
+    .login-card {
+      width: min(100%, 420px);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+      display: grid;
+      gap: 14px;
+    }
+
+    .login-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .login-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .close-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .helper-text {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .locked-note {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      display: none;
+    }
+
+    .locked-note.show {
+      display: block;
+    }
+
     .rightbar {
       padding: 16px;
     }
@@ -437,6 +696,59 @@
       padding-left: 18px;
     }
 
+    .panel-label {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .panel-hero {
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 45%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 70%);
+    }
+
+    .panel-quote {
+      margin: 12px 0 0;
+      padding-left: 14px;
+      border-left: 2px solid var(--border);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .info-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .info-item {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
+
+    .info-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .mini-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
     .profile-page {
       display: none;
       border-bottom: 1px solid var(--border);
@@ -452,6 +764,9 @@
       border-radius: 18px;
       background: linear-gradient(135deg, #1b1b1b, #3a3a3a);
       border: 1px solid var(--border);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
 
     .profile-meta {
@@ -475,11 +790,41 @@
       font-weight: 700;
       font-size: 22px;
       color: #fff;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
 
     .profile-name {
       font-size: 22px;
       font-weight: 700;
+    }
+
+    .profile-bio {
+      margin-top: 10px;
+      color: var(--text);
+      line-height: 1.8;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+
+    .profile-tools {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .profile-edit-box {
+      margin-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .profile-upload-grid {
+      display: grid;
+      gap: 10px;
     }
 
     .back-btn {
@@ -514,7 +859,7 @@
       right: 18px;
       bottom: 18px;
       z-index: 50;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     }
 
     .ai-panel {
@@ -531,7 +876,7 @@
       flex-direction: column;
       overflow: hidden;
       z-index: 60;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     }
 
     .ai-panel.open {
@@ -595,6 +940,7 @@
     .ai-actions {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .ai-hints {
@@ -611,6 +957,13 @@
       padding: 8px 12px;
       cursor: pointer;
       font-size: 12px;
+    }
+
+    .ai-status {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      min-height: 19px;
     }
 
     @media (max-width: 1100px) {
@@ -690,7 +1043,9 @@
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <div class="logo">●</div>
+      <div class="logo">
+        <img class="logo-image" src="assets/monoart-logo.png" alt="MonoArt ロゴ">
+      </div>
 
       <nav class="nav">
         <div class="nav-item active">
@@ -708,15 +1063,76 @@
         コメントといいねだけのシンプルな交流用です。
       </div>
 
+      <div class="sidebar-block">
+        <div class="sidebar-label">Theme</div>
+        <h3 class="sidebar-title">静かな作品を、静かなまま見せる</h3>
+        <p class="sidebar-copy">
+          情報を増やしすぎず、モノトーン作品の余白や空気感が前に出るようにまとめています。
+        </p>
+      </div>
+
+      <div class="sidebar-block">
+        <div class="sidebar-label">Guide</div>
+        <h3 class="sidebar-title">このサイトでできること</h3>
+        <ul class="sidebar-list">
+          <li>作品投稿</li>
+          <li>コメントといいね</li>
+          <li>プロフィール表示</li>
+          <li>AIで説明文相談</li>
+        </ul>
+      </div>
+
+      <div class="sidebar-block">
+        <div class="sidebar-label">Focus</div>
+        <h3 class="sidebar-title">課題で見せたいポイント</h3>
+        <p class="sidebar-copy">
+          UI、透かし、ローカル保存、AI補助を組み合わせて、
+          発想と使いやすさの両方が伝わる作品を目指しました。
+        </p>
+      </div>
+
       <div class="theme-wrap">
         <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">☾ ダーク</button>
       </div>
     </aside>
 
     <main class="main">
-      <div class="topbar" id="topbarTitle">ホーム</div>
+      <div class="topbar">
+        <div class="topbar-title" id="topbarTitle">ホーム</div>
+
+        <div class="topbar-actions">
+          <button id="loginActionBtn" class="ghost-btn" onclick="openLoginModal()">ログイン</button>
+          <button id="logoutActionBtn" class="ghost-btn" onclick="logout()" style="display: none;">ログアウト</button>
+        </div>
+      </div>
 
       <section id="homePage">
+        <div class="composer auth-panel">
+          <h2 class="auth-title">アカウント</h2>
+          <p id="authCopy" class="auth-copy">ログインすると投稿名が固定されて、そのまま作品を投稿できます。</p>
+
+          <div id="authLoggedOut">
+            <div class="auth-actions">
+              <button class="login-btn" onclick="openLoginModal()">ログイン</button>
+            </div>
+          </div>
+
+          <div id="authLoggedIn" style="display: none;">
+            <div class="auth-status">ログイン中</div>
+            <div class="auth-user">
+              <div class="avatar" id="authAvatar">U</div>
+              <div class="auth-user-meta">
+                <div class="auth-user-name" id="authUserName">user</div>
+                <div class="auth-user-id" id="authUserId">@user</div>
+              </div>
+            </div>
+
+            <div class="auth-actions">
+              <button class="ghost-btn" onclick="logout()">ログアウト</button>
+            </div>
+          </div>
+        </div>
+
         <div class="composer">
           <div class="row">
             <div class="avatar" id="composerAvatar">U</div>
@@ -724,14 +1140,26 @@
             <div class="composer-main">
               <div class="composer-title">作品を投稿する</div>
 
+              <div class="section-toggles">
+                <button id="imageFieldToggle" class="toggle-chip active" type="button" onclick="toggleComposerSection('image')">画像欄</button>
+                <button id="textFieldToggle" class="toggle-chip active" type="button" onclick="toggleComposerSection('text')">説明文欄</button>
+              </div>
+
               <div class="composer-fields">
                 <input id="userName" class="field" type="text" placeholder="ユーザー名">
+                <div id="composerImageSection" class="collapsible-section">
+                  <label for="artImageFile" class="file-label">画像を選択</label>
+                  <input id="artImageFile" class="file-input" type="file" accept="image/*">
+                  <div id="fileName" class="file-name">ファイル未選択</div>
+                </div>
 
-                <label for="artImageFile" class="file-label">画像を選択</label>
-                <input id="artImageFile" class="file-input" type="file" accept="image/*">
-                <div id="fileName" class="file-name">ファイル未選択</div>
+                <div id="composerTextSection" class="collapsible-section">
+                  <textarea id="artDesc" class="textarea" placeholder="作品の説明やこだわりを書く"></textarea>
+                </div>
+              </div>
 
-                <textarea id="artDesc" class="textarea" placeholder="作品の説明やこだわりを書く"></textarea>
+              <div id="lockedNote" class="locked-note">
+                投稿するには先にログインしてください。ログイン後はユーザー名が自動で入り、透かしにも同じ名前が使われます。
               </div>
 
               <div class="composer-actions">
@@ -748,22 +1176,51 @@
     </main>
 
     <aside class="rightbar">
-      <div class="panel">
+      <div class="panel panel-hero">
+        <div class="panel-label">Concept</div>
         <h2 class="panel-title">このサイトについて</h2>
         <p>
-          X風の見た目で作った、イラスト投稿用の小さなWeb作品です。
-          投稿、コメント、いいね、プロフィール表示ができます。
+          MonoArt Feed は、モノトーン作品の空気感を静かに共有するための
+          イラスト投稿サイトです。SNS風の見た目を使いながら、作品そのものが主役に見えるように設計しています。
+        </p>
+        <p class="panel-quote">
+          作品の雰囲気、作者名の透かし、短い言葉のやり取りまで含めて、
+          ひとつの世界観として見せることを意識しました。
         </p>
       </div>
 
       <div class="panel">
-        <h2 class="panel-title">ポイント</h2>
+        <div class="panel-label">Features</div>
+        <h2 class="panel-title">見どころ</h2>
+        <div class="info-list">
+          <div class="info-item">
+            <strong>モノトーンに寄せた投稿UI</strong>
+            タイムライン型の画面で、作品を並べたときの統一感が出るようにしています。
+          </div>
+          <div class="info-item">
+            <strong>画像への名前透かし</strong>
+            投稿時に画像へ署名風の透かしを入れ、作者らしさが残る見せ方にしました。
+          </div>
+          <div class="info-item">
+            <strong>AI相談で文章づくりを補助</strong>
+            説明文、感想、タグ、色の相談などを会話しながら整えられます。
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">Challenge</div>
+        <h2 class="panel-title">工夫したところ</h2>
         <ul>
-          <li>モノトーンのタイムラインUI</li>
-          <li>ユーザー名クリックでプロフィール表示</li>
-          <li>再読み込みしても投稿が消えない</li>
-          <li>投稿画像に大きい透かしを自動追加</li>
+          <li>ログイン状態に応じて投稿名を固定</li>
+          <li>再読み込み後も投稿内容を保持</li>
+          <li>プロフィール画面で投稿一覧と反応数を表示</li>
+          <li>右側の説明だけでも作品意図が伝わる構成</li>
         </ul>
+        <p class="mini-note">
+          課題作品として、発想だけでなく使いやすさや見せ方も伝わるように、
+          UIと説明文の両方をまとめてデザインしました。
+        </p>
       </div>
     </aside>
   </div>
@@ -779,25 +1236,76 @@
     <div id="aiMessages" class="ai-messages"></div>
 
     <div class="ai-footer">
+      <div class="section-toggles">
+        <button id="aiTextToggle" class="toggle-chip active" type="button" onclick="toggleAiSection('text')">相談文欄</button>
+      </div>
+
       <div class="ai-hints">
         <button class="ai-chip" onclick="fillAiPrompt('この作品の説明文を考えて')">説明文</button>
         <button class="ai-chip" onclick="fillAiPrompt('この作品の感想をやさしく書いて')">感想</button>
         <button class="ai-chip" onclick="fillAiPrompt('ハッシュタグ案を5個ちょうだい')">タグ</button>
       </div>
 
-      <textarea id="aiInput" class="ai-input" rows="3" placeholder="作品について相談してみよう"></textarea>
+      <div id="aiTextSection" class="collapsible-section">
+        <textarea id="aiInput" class="ai-input" rows="3" placeholder="作品について相談してみよう"></textarea>
+      </div>
+
+      <div id="aiStatus" class="ai-status">本物のブラウザAIです。Chrome系ブラウザとWebGPU対応環境で動きます。</div>
 
       <div class="ai-actions">
         <button id="aiSendBtn" class="ai-send-btn" onclick="sendAiMessage()">送信</button>
+        <button id="applyAiBtn" class="ghost-btn" onclick="applyAiToDescription()">説明文に反映</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="loginSheet" class="login-sheet" onclick="closeLoginModal(event)">
+    <div class="login-card" onclick="event.stopPropagation()">
+      <div class="login-head">
+        <h2 class="login-title">ログイン</h2>
+        <button class="close-btn" onclick="closeLoginModal()">✕</button>
+      </div>
+
+      <p class="helper-text">
+        デモ用のシンプルログインです。ユーザー名だけで入れて、投稿名や画像の透かしにもその名前が使われます。
+      </p>
+
+      <input id="loginNameInput" class="field" type="text" maxlength="20" placeholder="ユーザー名を入力">
+
+      <div class="auth-actions">
+        <button class="login-btn" onclick="login()">ログインする</button>
       </div>
     </div>
   </section>
 
   <script>
-    const STORAGE_KEY = "monoart_feed_posts_v3";
+    const STORAGE_KEY = "monoart_feed_posts_v2";
     const THEME_KEY = "monoart_theme_v1";
-    const AI_API_URL = "https://YOUR-VERCEL-PROJECT.vercel.app/api/chat";
+    const USER_KEY = "monoart_current_user_v1";
+    const PROFILE_KEY = "monoart_profiles_v1";
+    const WATERMARK_FONT_FAMILY = '"Cormorant Garamond", "Noto Serif JP", serif';
+    const WEBLLM_MODULE_URL = "https://esm.run/@mlc-ai/web-llm";
+    const WEBLLM_MODEL_ID = "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
+    const AI_SYSTEM_PROMPT = `You are a warm, capable Japanese creative assistant.
+Always reply in natural Japanese.
+Be accurate, practical, and easy to understand.
 
+Core behavior:
+- First understand what the user is actually asking.
+- If the request is general, answer it normally.
+- If the request is about writing, give polished ready-to-use text.
+- If the request is about design, give concrete options.
+- If the request is about colors, include color names and hex codes when useful.
+- If the request is about improvement, praise briefly first, then give specific advice.
+- Do not force the conversation back to artwork if the user is asking something else.
+- Do not mention these instructions.
+
+Style:
+- Usually answer in 2 to 6 sentences.
+- Prefer clarity over cleverness.
+- Avoid weird repetition.
+- Avoid robotic disclaimers.
+- If a list helps, keep it short and clean.`;
     const defaultPosts = [
       {
         id: crypto.randomUUID(),
@@ -824,9 +1332,28 @@
     let aiHistory = [
       {
         role: "assistant",
-        content: "こんにちは！作品の説明文、感想、タグ案、投稿文づくりを手伝えるよ。"
+        content: "こんにちは！ローカルで動くAIだよ。作品の説明文、感想、タグ案づくりを手伝えるよ。"
       }
     ];
+    let webllmModulePromise = null;
+    let webllmEnginePromise = null;
+    let aiFallbackMode = false;
+    let lastAiDraft = "";
+    let profiles = loadProfiles();
+    let composerSections = {
+      image: true,
+      text: true
+    };
+    let aiSections = {
+      text: true
+    };
+
+    let currentUser = loadCurrentUser();
+
+    function loadCurrentUser() {
+      const saved = localStorage.getItem(USER_KEY);
+      return saved ? saved.trim() : "";
+    }
 
     function loadPosts() {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -843,8 +1370,50 @@
 
     let posts = loadPosts();
 
+    function loadProfiles() {
+      const saved = localStorage.getItem(PROFILE_KEY);
+      if (!saved) return {};
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("プロフィール読み込みエラー", e);
+        return {};
+      }
+    }
+
+    function saveProfiles() {
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(profiles));
+    }
+
+    function getProfile(userName) {
+      if (!profiles[userName]) {
+        profiles[userName] = {
+          bio: "モノトーンの空気感を大切にしながら、静かな余韻が残る作品を投稿しています。",
+          avatarImage: "",
+          headerImage: ""
+        };
+      }
+      return profiles[userName];
+    }
+
+    function renderAvatarHtml(userName) {
+      const profile = getProfile(userName);
+      if (profile.avatarImage) {
+        return `<div class="avatar" style="background-image: url('${profile.avatarImage}');"></div>`;
+      }
+      return `<div class="avatar">${escapeHtml(getInitial(userName))}</div>`;
+    }
+
     function savePosts() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+    }
+
+    function saveCurrentUser(userName) {
+      if (userName) {
+        localStorage.setItem(USER_KEY, userName);
+      } else {
+        localStorage.removeItem(USER_KEY);
+      }
     }
 
     function safeSavePosts() {
@@ -853,7 +1422,7 @@
         return true;
       } catch (e) {
         console.error("保存エラー", e);
-        alert("画像が大きすぎて保存できませんでした。画像を少し軽くするか、枚数を減らして試してください。");
+        alert("画像が大きすぎて保存できませんでした。もう少し軽い画像で試してみてください。");
         return false;
       }
     }
@@ -908,11 +1477,125 @@
       document.getElementById("composerAvatar").textContent = getInitial(userName);
     }
 
+    function renderAuthState() {
+      const loggedIn = Boolean(currentUser);
+      const authLoggedIn = document.getElementById("authLoggedIn");
+      const authLoggedOut = document.getElementById("authLoggedOut");
+      const loginActionBtn = document.getElementById("loginActionBtn");
+      const logoutActionBtn = document.getElementById("logoutActionBtn");
+      const authUserName = document.getElementById("authUserName");
+      const authUserId = document.getElementById("authUserId");
+      const authAvatar = document.getElementById("authAvatar");
+      const authCopy = document.getElementById("authCopy");
+      const userNameInput = document.getElementById("userName");
+      const lockedNote = document.getElementById("lockedNote");
+
+      authLoggedIn.style.display = loggedIn ? "block" : "none";
+      authLoggedOut.style.display = loggedIn ? "none" : "block";
+      loginActionBtn.style.display = loggedIn ? "none" : "inline-flex";
+      logoutActionBtn.style.display = loggedIn ? "inline-flex" : "none";
+      lockedNote.classList.toggle("show", !loggedIn);
+
+      if (loggedIn) {
+        authUserName.textContent = currentUser;
+        authUserId.textContent = `@${currentUser}`;
+        authAvatar.textContent = getInitial(currentUser);
+        authCopy.textContent = "ログイン中の名前で投稿できます。ユーザー名欄は固定され、AI相談にもそのまま反映されます。";
+        userNameInput.value = currentUser;
+        userNameInput.readOnly = true;
+      } else {
+        authUserName.textContent = "user";
+        authUserId.textContent = "@user";
+        authAvatar.textContent = "U";
+        authCopy.textContent = "ログインすると投稿名が固定されて、そのまま作品を投稿できます。";
+        userNameInput.value = "";
+        userNameInput.readOnly = false;
+      }
+
+      updateComposerAvatar();
+    }
+
+    function openLoginModal() {
+      document.getElementById("loginSheet").classList.add("open");
+      const input = document.getElementById("loginNameInput");
+      input.value = currentUser;
+      input.focus();
+    }
+
+    function closeLoginModal(event) {
+      if (event && event.target !== event.currentTarget) return;
+      document.getElementById("loginSheet").classList.remove("open");
+    }
+
+    function login() {
+      const input = document.getElementById("loginNameInput");
+      const nextName = input.value.trim();
+
+      if (!nextName) {
+        alert("ユーザー名を入力してください。");
+        input.focus();
+        return;
+      }
+
+      currentUser = nextName;
+      saveCurrentUser(currentUser);
+      renderAuthState();
+      closeLoginModal();
+    }
+
+    function logout() {
+      const ok = confirm("ログアウトしますか？");
+      if (!ok) return;
+
+      currentUser = "";
+      saveCurrentUser("");
+      renderAuthState();
+      clearForm();
+    }
+
     function updateFileName() {
       const input = document.getElementById("artImageFile");
       const fileName = document.getElementById("fileName");
       const file = input.files[0];
       fileName.textContent = file ? file.name : "ファイル未選択";
+    }
+
+    function setToggleState(buttonId, active) {
+      const btn = document.getElementById(buttonId);
+      if (!btn) return;
+      btn.classList.toggle("active", active);
+    }
+
+    function toggleComposerSection(section) {
+      composerSections[section] = !composerSections[section];
+
+      if (!composerSections.image && !composerSections.text) {
+        composerSections[section] = true;
+      }
+
+      renderComposerSections();
+    }
+
+    function renderComposerSections() {
+      document.getElementById("composerImageSection").classList.toggle("hidden", !composerSections.image);
+      document.getElementById("composerTextSection").classList.toggle("hidden", !composerSections.text);
+      setToggleState("imageFieldToggle", composerSections.image);
+      setToggleState("textFieldToggle", composerSections.text);
+    }
+
+    function toggleAiSection(section) {
+      aiSections[section] = !aiSections[section];
+
+      if (!aiSections.text) {
+        aiSections[section] = true;
+      }
+
+      renderAiSections();
+    }
+
+    function renderAiSections() {
+      document.getElementById("aiTextSection").classList.toggle("hidden", !aiSections.text);
+      setToggleState("aiTextToggle", aiSections.text);
     }
 
     function setSubmitting(isSubmitting) {
@@ -921,38 +1604,63 @@
       btn.textContent = isSubmitting ? "投稿中..." : "投稿する";
     }
 
-    function drawWatermark(ctx, text, width, height) {
-      if (!text) return;
-
-      const mark = `@${text}`;
-      const fontSize = Math.max(42, Math.floor(Math.min(width, height) * 0.14));
+    function drawWatermark(ctx, width, height, userName) {
+      const rawText = (userName || "MONOART").trim();
+      const text = /[a-z]/i.test(rawText) ? rawText.toUpperCase() : rawText;
+      const fontSize = Math.max(44, Math.floor(width * 0.1));
+      const tracking = Math.max(4, Math.floor(fontSize * 0.08));
 
       ctx.save();
       ctx.translate(width / 2, height / 2);
-      ctx.rotate(-Math.PI / 6);
-
-      ctx.font = `900 ${fontSize}px sans-serif`;
+      ctx.rotate(-Math.PI / 9);
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
+      ctx.font = `italic 700 ${fontSize}px ${WATERMARK_FONT_FAMILY}`;
+      ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.16)";
+      ctx.lineWidth = Math.max(1.5, fontSize * 0.025);
+      ctx.shadowColor = "rgba(0, 0, 0, 0.18)";
+      ctx.shadowBlur = Math.max(6, Math.floor(fontSize * 0.12));
 
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.30)";
-      ctx.lineWidth = Math.max(3, Math.floor(fontSize * 0.07));
-      ctx.strokeText(mark, 0, 0);
+      const glyphs = Array.from(text);
+      const widths = glyphs.map((char) => ctx.measureText(char).width);
+      const totalWidth = widths.reduce((sum, value) => sum + value, 0) + tracking * Math.max(0, glyphs.length - 1);
+      let x = -totalWidth / 2;
 
-      ctx.fillStyle = "rgba(255, 255, 255, 0.24)";
-      ctx.fillText(mark, 0, 0);
+      glyphs.forEach((char, index) => {
+        const charWidth = widths[index];
+        const drawX = x + charWidth / 2;
+        ctx.strokeText(char, drawX, 0);
+        ctx.fillText(char, drawX, 0);
+        x += charWidth + tracking;
+      });
 
       ctx.restore();
     }
 
-    function resizeImage(file, userName, maxWidth = 1200, quality = 0.72) {
+    async function ensureWatermarkFont() {
+      if (!document.fonts || !document.fonts.load) {
+        return;
+      }
+
+      try {
+        await Promise.all([
+          document.fonts.load(`italic 700 72px ${WATERMARK_FONT_FAMILY}`),
+          document.fonts.load(`700 72px "Noto Serif JP"`)
+        ]);
+      } catch (error) {
+        console.warn("透かしフォントの読み込みに失敗しました", error);
+      }
+    }
+
+    function resizeImage(file, userName, maxWidth = 1200, quality = 0.75) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
 
         reader.onload = function(e) {
           const img = new Image();
 
-          img.onload = function() {
+          img.onload = async function() {
             let width = img.width;
             let height = img.height;
 
@@ -961,14 +1669,15 @@
               width = maxWidth;
             }
 
+            await ensureWatermarkFont();
+
             const canvas = document.createElement("canvas");
             canvas.width = width;
             canvas.height = height;
 
             const ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0, width, height);
-
-            drawWatermark(ctx, userName, width, height);
+            drawWatermark(ctx, width, height, userName);
 
             const dataUrl = canvas.toDataURL("image/jpeg", quality);
             resolve(dataUrl);
@@ -991,13 +1700,191 @@
 
     function getLatestPostContext() {
       const desc = document.getElementById("artDesc").value.trim();
-      const userName = document.getElementById("userName").value.trim();
-      const fileName = document.getElementById("fileName").textContent;
+      return desc ? `現在の作品メモ:\n${desc}` : "";
+    }
 
-      return `現在の入力状況:
-ユーザー名: ${userName || "未入力"}
-画像ファイル: ${fileName || "なし"}
-説明文: ${desc || "未入力"}`;
+    function setAiStatus(text) {
+      document.getElementById("aiStatus").textContent = text;
+    }
+
+    function setApplyAiEnabled(enabled) {
+      const btn = document.getElementById("applyAiBtn");
+      btn.disabled = !enabled;
+      btn.style.opacity = enabled ? "1" : "0.5";
+      btn.style.cursor = enabled ? "pointer" : "not-allowed";
+    }
+
+    async function loadWebLlmModule() {
+      if (!webllmModulePromise) {
+        webllmModulePromise = import(WEBLLM_MODULE_URL);
+      }
+      return webllmModulePromise;
+    }
+
+    function supportsLocalAi() {
+      return typeof navigator !== "undefined" && "gpu" in navigator;
+    }
+
+    async function ensureAiEngine() {
+      if (!supportsLocalAi()) {
+        throw new Error("WebGPU unsupported");
+      }
+
+      if (webllmEnginePromise) {
+        return webllmEnginePromise;
+      }
+
+      setAiStatus("AIモデルを読み込み中です。初回は1〜3分ほどかかることがあります。");
+
+      webllmEnginePromise = loadWebLlmModule()
+        .then(async (webllm) => {
+          const engine = new webllm.MLCEngine({
+            initProgressCallback: (report) => {
+              if (!report) return;
+              const text = report.text || "AIモデルを準備しています...";
+              setAiStatus(text);
+            }
+          });
+          await engine.reload(WEBLLM_MODEL_ID);
+          return engine;
+        })
+        .then((engine) => {
+          setAiStatus("AIの準備ができました。作品について自然な日本語で相談できます。");
+          return engine;
+        })
+        .catch((error) => {
+          webllmEnginePromise = null;
+          setAiStatus("AIの起動に失敗しました。Chrome最新版で開き直すと動きやすいです。");
+          throw error;
+        });
+
+      return webllmEnginePromise;
+    }
+
+    function buildAiMessages(userText) {
+      const context = getLatestPostContext();
+      const mode = inferAiMode(userText);
+      const previousTurns = aiHistory
+        .filter((item) => item.role === "user" || item.role === "assistant")
+        .slice(-8)
+        .map((item) => ({
+          role: item.role,
+          content: item.content
+        }));
+
+      return [
+        {
+          role: "system",
+          content: AI_SYSTEM_PROMPT
+        },
+        {
+          role: "system",
+          content: buildAiModeInstruction(mode)
+        },
+        ...previousTurns,
+        {
+          role: "user",
+          content: context ? `${userText}\n\n${context}` : userText
+        }
+      ];
+    }
+
+    function normalizeAiReply(text) {
+      return (text || "")
+        .replace(/^\s*assistant\s*:\s*/i, "")
+        .replace(/^\s*もちろん[、。]?\s*/i, "")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+    }
+
+    function inferAiMode(userText) {
+      const text = userText.toLowerCase();
+
+      if (/カラーコード|hex|色コード|色番号/.test(text)) return "color";
+      if (/タグ|ハッシュタグ|hashtag/.test(text)) return "tags";
+      if (/タイトル|題名/.test(text)) return "title";
+      if (/説明文|キャプション|紹介文/.test(text)) return "caption";
+      if (/感想|レビュー|コメント/.test(text)) return "feedback";
+      if (/改善|直す|アドバイス|コツ/.test(text)) return "improve";
+      if (/フォント|配色|デザイン|レイアウト/.test(text)) return "design";
+      return "general";
+    }
+
+    function buildAiModeInstruction(mode) {
+      if (mode === "color") {
+        return "When answering color questions, give 2 to 4 concrete color options. Include hex codes like #F7C6C7 and a short note about the mood of each color.";
+      }
+      if (mode === "tags") {
+        return "Return around 5 short hashtags in Japanese. Do not add extra explanation unless the user asks for it.";
+      }
+      if (mode === "title") {
+        return "Return 3 short title ideas. Each title should feel usable and polished.";
+      }
+      if (mode === "caption") {
+        return "Write a polished caption in natural Japanese. Keep it ready to paste. Usually 1 to 3 sentences.";
+      }
+      if (mode === "feedback") {
+        return "Start with one warm positive observation. Then add one specific comment that feels helpful.";
+      }
+      if (mode === "improve") {
+        return "Give practical improvement advice with clear next steps. Keep it encouraging, not harsh.";
+      }
+      if (mode === "design") {
+        return "Give specific, usable design suggestions. Mention concrete examples when possible.";
+      }
+      return "Answer naturally in Japanese. Be clear, useful, and a little warm.";
+    }
+
+    function buildUnsupportedAiReply() {
+      return "ローカルAIの起動でエラーが出たので、会話が止まらないように簡易アシスタントへ切り替えました。";
+    }
+
+    function summarizeAiError(error) {
+      const raw = String(error?.message || error || "unknown error");
+
+      if (/fetch|download|network|failed to fetch|load/i.test(raw)) {
+        return "モデルのダウンロードに失敗しました。通信状況かCDN読込で止まっています。";
+      }
+      if (/memory|out of memory|allocation/i.test(raw)) {
+        return "モデル読込中にメモリ不足になりました。ほかのタブを閉じると改善することがあります。";
+      }
+      if (/webgpu|adapter|device/i.test(raw)) {
+        return "WebGPU初期化で止まりました。Chromeを再起動すると改善することがあります。";
+      }
+      if (/model|reload/i.test(raw)) {
+        return "AIモデルの初期化で止まりました。モデル読込の途中で失敗しています。";
+      }
+
+      return `AI初期化エラー: ${raw.slice(0, 120)}`;
+    }
+
+    function generateFallbackReply(userText) {
+      const text = userText.trim();
+      const lower = text.toLowerCase();
+      const context = getLatestPostContext().replace(/^現在の作品メモ:\n/, "");
+
+      if (/カラーコード|hex|色コード|色番号/.test(lower)) {
+        return "桜色なら `#F7C6C7` が使いやすいです。もっと淡くするなら `#FDEEF4`、少し落ち着かせるなら `#E8B7B1` もきれいです。";
+      }
+      if (/タグ|ハッシュタグ|hashtag/.test(lower)) {
+        return "#モノクロイラスト #創作 #イラスト投稿 #世界観 #アート";
+      }
+      if (/タイトル|題名/.test(lower)) {
+        return "「静かな余韻」\n「光の気配」\n「Silent Tone」";
+      }
+      if (/感想|レビュー|コメント/.test(lower)) {
+        return "静かな空気感がとても心地よくて、見ているほど世界観に引き込まれます。やわらかな余白の使い方が魅力的です。";
+      }
+      if (/改善|直す|アドバイス|コツ/.test(lower)) {
+        return "見せたい部分の明暗差を少しだけ強めると、印象がまとまりやすくなります。説明文ではテーマを一言先に置くと、伝わり方がもっと良くなります。";
+      }
+      if (/説明文|キャプション|紹介文/.test(lower)) {
+        return context
+          ? `${context}\n静かな余韻が残るよう、モノトーンの空気感を大切にしながら仕上げました。`
+          : "モノトーンの静けさとやわらかな余韻が伝わるように、空気感を大切にしてまとめた作品です。";
+      }
+
+      return "もちろんです。内容に合わせて一緒に整えられます。もう少し具体的に聞いてくれたら、短く使いやすい形で返します。";
     }
 
     function toggleAiPanel() {
@@ -1031,42 +1918,46 @@
       const text = input.value.trim();
       if (!text) return;
 
-      const composedMessage = `${text}
-
-${getLatestPostContext()}`;
-
       aiHistory.push({ role: "user", content: text });
       renderAiMessages();
       input.value = "";
       setAiSending(true);
+      setAiStatus(aiFallbackMode ? "簡易アシスタントが返答をまとめています..." : "ローカルAIが返答を生成しています...");
 
       try {
-        const response = await fetch(AI_API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: composedMessage,
-            history: aiHistory
-          })
-        });
+        let cleanReply = "";
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "AIとの通信に失敗しました");
+        if (aiFallbackMode) {
+          cleanReply = generateFallbackReply(text);
+        } else {
+          const engine = await ensureAiEngine();
+          const completion = await engine.chat.completions.create({
+            messages: buildAiMessages(text),
+            temperature: 0.45,
+            top_p: 0.9,
+            max_tokens: 220
+          });
+          const rawReply = completion.choices?.[0]?.message?.content || "";
+          cleanReply = normalizeAiReply(rawReply) || "うまく言葉にできなかったので、もう一度だけ聞いてみてね。";
         }
 
         aiHistory.push({
           role: "assistant",
-          content: data.reply || "うまく返答できなかったよ。もう一度試してみてね。"
+          content: cleanReply
         });
+        lastAiDraft = cleanReply;
+        setApplyAiEnabled(true);
+        setAiStatus(aiFallbackMode
+          ? "簡易アシスタントで返答しました。気に入ったら「説明文に反映」で入れられます。"
+          : "回答を受け取りました。気に入ったら「説明文に反映」で入れられます。");
       } catch (error) {
+        aiFallbackMode = true;
+        const detail = summarizeAiError(error);
         aiHistory.push({
           role: "assistant",
-          content: "接続に失敗しちゃった。VercelのURLかAPIキー設定を見直してみてね。"
+          content: `${buildUnsupportedAiReply()}\n${detail}`
         });
+        setAiStatus(detail);
         console.error(error);
       } finally {
         setAiSending(false);
@@ -1074,8 +1965,25 @@ ${getLatestPostContext()}`;
       }
     }
 
+    function applyAiToDescription() {
+      if (!lastAiDraft) {
+        return;
+      }
+
+      const desc = document.getElementById("artDesc");
+      desc.value = lastAiDraft;
+      desc.focus();
+      setAiStatus("AIの文章を説明文に反映しました。必要なら少しだけ手直しして使えます。");
+    }
+
     document.getElementById("userName").addEventListener("input", updateComposerAvatar);
     document.getElementById("artImageFile").addEventListener("change", updateFileName);
+    document.getElementById("loginNameInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        login();
+      }
+    });
     document.getElementById("aiInput").addEventListener("keydown", function(e) {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -1089,6 +1997,12 @@ ${getLatestPostContext()}`;
       const file = fileInput.files[0];
       const description = document.getElementById("artDesc").value.trim();
 
+      if (!currentUser) {
+        alert("先にログインしてください。");
+        openLoginModal();
+        return;
+      }
+
       if (!userName || !file) {
         alert("ユーザー名・画像ファイルは必須です。");
         return;
@@ -1097,7 +2011,7 @@ ${getLatestPostContext()}`;
       setSubmitting(true);
 
       try {
-        const resizedImage = await resizeImage(file, userName, 1200, 0.72);
+        const resizedImage = await resizeImage(file, userName, 1200, 0.75);
 
         const newPost = {
           id: crypto.randomUUID(),
@@ -1131,10 +2045,12 @@ ${getLatestPostContext()}`;
     }
 
     function clearForm() {
-      document.getElementById("userName").value = "";
+      document.getElementById("userName").value = currentUser || "";
       document.getElementById("artImageFile").value = "";
       document.getElementById("artDesc").value = "";
       document.getElementById("fileName").textContent = "ファイル未選択";
+      lastAiDraft = "";
+      setApplyAiEnabled(false);
       updateComposerAvatar();
     }
 
@@ -1205,11 +2121,11 @@ ${getLatestPostContext()}`;
       timeline.innerHTML = sortedPosts.map(post => `
         <article class="post">
           <div class="row">
-            <div class="avatar">${escapeHtml(getInitial(post.userName))}</div>
+            ${renderAvatarHtml(post.userName)}
 
             <div class="post-main">
               <div class="post-header">
-                <button class="profile-link" onclick="showProfile('${escapeHtml(post.userName)}')">
+                <button class="profile-link" data-user="${encodeURIComponent(post.userName)}" onclick="showProfile(decodeURIComponent(this.dataset.user))">
                   <span class="name">${escapeHtml(post.userName)}</span>
                 </button>
                 <span class="user-id">@${escapeHtml(post.userName)}</span>
@@ -1257,6 +2173,8 @@ ${getLatestPostContext()}`;
       const profilePage = document.getElementById("profilePage");
       const homePage = document.getElementById("homePage");
       const topbarTitle = document.getElementById("topbarTitle");
+      const profile = getProfile(userName);
+      const isOwnProfile = currentUser && currentUser === userName;
 
       const userPosts = [...posts]
         .filter(post => post.userName === userName)
@@ -1269,14 +2187,36 @@ ${getLatestPostContext()}`;
         <div class="profile-head">
           <button class="back-btn" onclick="goHome()">← 戻る</button>
 
-          <div class="profile-banner"></div>
+          <div class="profile-banner" style="${profile.headerImage ? `background-image: url('${profile.headerImage}');` : ""}"></div>
 
           <div class="profile-meta">
-            <div class="profile-avatar">${escapeHtml(getInitial(userName))}</div>
+            <div class="profile-avatar" style="${profile.avatarImage ? `background-image: url('${profile.avatarImage}');` : ""}">
+              ${profile.avatarImage ? "" : escapeHtml(getInitial(userName))}
+            </div>
 
             <div>
               <div class="profile-name">${escapeHtml(userName)}</div>
               <div class="muted">@${escapeHtml(userName)}</div>
+              <div class="profile-bio">${escapeHtml(profile.bio || "")}</div>
+
+              ${isOwnProfile ? `
+                <div class="profile-tools">
+                  <button class="ghost-btn" onclick="toggleProfileEdit(true)">プロフィールを編集</button>
+                </div>
+                <div id="profileEditBox" class="profile-edit-box hidden">
+                  <textarea id="profileBioInput" class="textarea" placeholder="自己紹介を書く">${escapeHtml(profile.bio || "")}</textarea>
+                  <div class="profile-upload-grid">
+                    <label for="profileAvatarInput" class="file-label">アイコン画像を選ぶ</label>
+                    <input id="profileAvatarInput" class="file-input" type="file" accept="image/*">
+                    <label for="profileHeaderInput" class="file-label">ヘッダー画像を選ぶ</label>
+                    <input id="profileHeaderInput" class="file-input" type="file" accept="image/*">
+                  </div>
+                  <div class="auth-actions">
+                    <button class="submit-btn" onclick="saveProfileBio()">保存</button>
+                    <button class="ghost-btn" onclick="toggleProfileEdit(false)">キャンセル</button>
+                  </div>
+                </div>
+              ` : ""}
 
               <div class="stats">
                 <div><strong>${userPosts.length}</strong> 投稿</div>
@@ -1293,7 +2233,7 @@ ${getLatestPostContext()}`;
             : userPosts.map(post => `
               <article class="post">
                 <div class="row">
-                  <div class="avatar">${escapeHtml(getInitial(post.userName))}</div>
+                  ${renderAvatarHtml(post.userName)}
 
                   <div class="post-main">
                     <div class="post-header">
@@ -1352,6 +2292,56 @@ ${getLatestPostContext()}`;
       window.currentProfileUser = null;
     }
 
+    function toggleProfileEdit(isOpen) {
+      const box = document.getElementById("profileEditBox");
+      if (!box) return;
+      box.classList.toggle("hidden", !isOpen);
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) {
+          resolve("");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          resolve(e.target.result);
+        };
+        reader.onerror = function() {
+          reject(new Error("画像の読み込みに失敗しました"));
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function saveProfileBio() {
+      if (!window.currentProfileUser) return;
+      const input = document.getElementById("profileBioInput");
+      if (!input) return;
+      const avatarFile = document.getElementById("profileAvatarInput")?.files?.[0];
+      const headerFile = document.getElementById("profileHeaderInput")?.files?.[0];
+
+      try {
+        const profile = getProfile(window.currentProfileUser);
+        profile.bio = input.value.trim() || "モノトーンの空気感を大切にしながら、静かな余韻が残る作品を投稿しています。";
+
+        if (avatarFile) {
+          profile.avatarImage = await fileToDataUrl(avatarFile);
+        }
+        if (headerFile) {
+          profile.headerImage = await fileToDataUrl(headerFile);
+        }
+
+        saveProfiles();
+        showProfile(window.currentProfileUser);
+      } catch (error) {
+        console.error(error);
+        alert("プロフィール画像の保存に失敗しました。別の画像で試してみてください。");
+      }
+    }
+
     function refreshProfileIfOpen(userName) {
       if (window.currentProfileUser && window.currentProfileUser === userName) {
         showProfile(userName);
@@ -1360,6 +2350,11 @@ ${getLatestPostContext()}`;
 
     updateComposerAvatar();
     loadTheme();
+    renderAuthState();
+    clearForm();
+    setApplyAiEnabled(false);
+    renderComposerSections();
+    renderAiSections();
     renderTimeline();
     renderAiMessages();
   </script>
