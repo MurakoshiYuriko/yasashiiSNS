@@ -1043,11 +1043,10 @@
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <aside class="sidebar">
-  <div class="logo">
-    <img class="logo-image" src="資産/monoart-logo.png" alt="MonoArt ロゴ">
-  </div>
-        
+      <div class="logo">
+        <img class="logo-image" src="資産/monoart-logo.png" alt="MonoArt ロゴ">
+      </div>
+
       <nav class="nav">
         <div class="nav-item active">
           <span>⌂</span>
@@ -1068,7 +1067,7 @@
         <div class="sidebar-label">Theme</div>
         <h3 class="sidebar-title">モノトーンのイラスト画像投稿サイト</h3>
         <p class="sidebar-copy">
-         どのような作品にもマッチするモノクロカラーで形成しました。またモノクロカラーは私を象徴する色でもあります。
+          どのような作品にもマッチするモノクロカラーで形成しました。またモノクロカラーは私を象徴する色でもあります。
         </p>
       </div>
 
@@ -1151,6 +1150,7 @@
 
               <div class="composer-fields">
                 <input id="userName" class="field" type="text" placeholder="ユーザー名">
+
                 <div id="composerImageSection" class="collapsible-section">
                   <label for="artImageFile" class="file-label">画像を選択</label>
                   <input id="artImageFile" class="file-input" type="file" accept="image/*">
@@ -1177,14 +1177,13 @@
       </section>
 
       <section id="profilePage" class="profile-page"></section>
-    </main>
-
-    <aside class="rightbar">
+    </main
+          <aside class="rightbar">
       <div class="panel panel-hero">
         <div class="panel-label">Concept</div>
         <h2 class="panel-title">このサイトについて</h2>
         <p>
-MonoArtは、画像投稿に特化したサイトです。そのため、自動で透かしが入るなど、著作権に配慮した設計となっています。SNSのような見た目でありながら、作品そのものが主役として際立つよう工夫されています。
+          MonoArtは、画像投稿に特化したサイトです。そのため、自動で透かしが入るなど、著作権に配慮した設計となっています。SNSのような見た目でありながら、作品そのものが主役として際立つよう工夫されています。
         </p>
         <p class="panel-quote">
           作品の雰囲気、作者名の透かし、短い言葉のやり取りまで含めて、
@@ -1309,6 +1308,7 @@ Style:
 - Avoid weird repetition.
 - Avoid robotic disclaimers.
 - If a list helps, keep it short and clean.`;
+
     const defaultPosts = [
       {
         id: crypto.randomUUID(),
@@ -1338,19 +1338,14 @@ Style:
         content: "こんにちは！ローカルで動くAIだよ。作品の説明文、感想、タグ案づくりを手伝えるよ。"
       }
     ];
+
     let webllmModulePromise = null;
     let webllmEnginePromise = null;
     let aiFallbackMode = false;
     let lastAiDraft = "";
     let profiles = loadProfiles();
-    let composerSections = {
-      image: true,
-      text: true
-    };
-    let aiSections = {
-      text: true
-    };
-
+    let composerSections = { image: true, text: true };
+    let aiSections = { text: true };
     let currentUser = loadCurrentUser();
 
     function loadCurrentUser() {
@@ -1571,11 +1566,9 @@ Style:
 
     function toggleComposerSection(section) {
       composerSections[section] = !composerSections[section];
-
       if (!composerSections.image && !composerSections.text) {
         composerSections[section] = true;
       }
-
       renderComposerSections();
     }
 
@@ -1588,11 +1581,9 @@ Style:
 
     function toggleAiSection(section) {
       aiSections[section] = !aiSections[section];
-
       if (!aiSections.text) {
         aiSections[section] = true;
       }
-
       renderAiSections();
     }
 
@@ -1642,10 +1633,7 @@ Style:
     }
 
     async function ensureWatermarkFont() {
-      if (!document.fonts || !document.fonts.load) {
-        return;
-      }
-
+      if (!document.fonts || !document.fonts.load) return;
       try {
         await Promise.all([
           document.fonts.load(`italic 700 72px ${WATERMARK_FONT_FAMILY}`),
@@ -1776,19 +1764,10 @@ Style:
         }));
 
       return [
-        {
-          role: "system",
-          content: AI_SYSTEM_PROMPT
-        },
-        {
-          role: "system",
-          content: buildAiModeInstruction(mode)
-        },
+        { role: "system", content: AI_SYSTEM_PROMPT },
+        { role: "system", content: buildAiModeInstruction(mode) },
         ...previousTurns,
-        {
-          role: "user",
-          content: context ? `${userText}\n\n${context}` : userText
-        }
+        { role: "user", content: context ? `${userText}\n\n${context}` : userText }
       ];
     }
 
@@ -1814,27 +1793,13 @@ Style:
     }
 
     function buildAiModeInstruction(mode) {
-      if (mode === "color") {
-        return "When answering color questions, give 2 to 4 concrete color options. Include hex codes like #F7C6C7 and a short note about the mood of each color.";
-      }
-      if (mode === "tags") {
-        return "Return around 5 short hashtags in Japanese. Do not add extra explanation unless the user asks for it.";
-      }
-      if (mode === "title") {
-        return "Return 3 short title ideas. Each title should feel usable and polished.";
-      }
-      if (mode === "caption") {
-        return "Write a polished caption in natural Japanese. Keep it ready to paste. Usually 1 to 3 sentences.";
-      }
-      if (mode === "feedback") {
-        return "Start with one warm positive observation. Then add one specific comment that feels helpful.";
-      }
-      if (mode === "improve") {
-        return "Give practical improvement advice with clear next steps. Keep it encouraging, not harsh.";
-      }
-      if (mode === "design") {
-        return "Give specific, usable design suggestions. Mention concrete examples when possible.";
-      }
+      if (mode === "color") return "When answering color questions, give 2 to 4 concrete color options. Include hex codes like #F7C6C7 and a short note about the mood of each color.";
+      if (mode === "tags") return "Return around 5 short hashtags in Japanese. Do not add extra explanation unless the user asks for it.";
+      if (mode === "title") return "Return 3 short title ideas. Each title should feel usable and polished.";
+      if (mode === "caption") return "Write a polished caption in natural Japanese. Keep it ready to paste. Usually 1 to 3 sentences.";
+      if (mode === "feedback") return "Start with one warm positive observation. Then add one specific comment that feels helpful.";
+      if (mode === "improve") return "Give practical improvement advice with clear next steps. Keep it encouraging, not harsh.";
+      if (mode === "design") return "Give specific, usable design suggestions. Mention concrete examples when possible.";
       return "Answer naturally in Japanese. Be clear, useful, and a little warm.";
     }
 
@@ -1944,15 +1909,14 @@ Style:
           cleanReply = normalizeAiReply(rawReply) || "うまく言葉にできなかったので、もう一度だけ聞いてみてね。";
         }
 
-        aiHistory.push({
-          role: "assistant",
-          content: cleanReply
-        });
+        aiHistory.push({ role: "assistant", content: cleanReply });
         lastAiDraft = cleanReply;
         setApplyAiEnabled(true);
-        setAiStatus(aiFallbackMode
-          ? "簡易アシスタントで返答しました。気に入ったら「説明文に反映」で入れられます。"
-          : "回答を受け取りました。気に入ったら「説明文に反映」で入れられます。");
+        setAiStatus(
+          aiFallbackMode
+            ? "簡易アシスタントで返答しました。気に入ったら「説明文に反映」で入れられます。"
+            : "回答を受け取りました。気に入ったら「説明文に反映」で入れられます。"
+        );
       } catch (error) {
         aiFallbackMode = true;
         const detail = summarizeAiError(error);
@@ -1969,9 +1933,7 @@ Style:
     }
 
     function applyAiToDescription() {
-      if (!lastAiDraft) {
-        return;
-      }
+      if (!lastAiDraft) return;
 
       const desc = document.getElementById("artDesc");
       desc.value = lastAiDraft;
