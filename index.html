@@ -136,6 +136,8 @@
       font-size: 14px;
       line-height: 1.6;
       padding: 0 6px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .sidebar-block {
@@ -144,6 +146,7 @@
       border: 1px solid var(--border);
       border-radius: 18px;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
+      overflow: hidden;
     }
 
     .sidebar-label {
@@ -169,6 +172,8 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.7;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .sidebar-list {
@@ -177,6 +182,12 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.7;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .sidebar-list li {
+      margin-bottom: 4px;
     }
 
     .theme-wrap {
@@ -676,6 +687,7 @@
       border-radius: 18px;
       padding: 16px;
       margin-bottom: 16px;
+      overflow: hidden;
     }
 
     .panel-title {
@@ -689,6 +701,8 @@
       color: var(--text);
       line-height: 1.7;
       font-size: 14px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .panel ul {
@@ -733,6 +747,7 @@
       border-radius: 14px;
       border: 1px solid var(--border);
       background: var(--card);
+      overflow: hidden;
     }
 
     .info-item strong {
@@ -747,6 +762,8 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.7;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .profile-page {
@@ -1044,8 +1061,7 @@
   <div class="layout">
     <aside class="sidebar">
       <div class="logo">
-       <img class="logo-image" src="assets/monoart-logo.png" alt="MonoArt ロゴ">
-        
+        <img class="logo-image" src="assets/monoart-logo.png" alt="MonoArt ロゴ">
       </div>
 
       <nav class="nav">
@@ -1080,7 +1096,7 @@
           <li>コメントといいね</li>
           <li>プロフィール表示</li>
           <li>AIで説明文相談</li>
-           <li>ライトモードダークモードの切り替え</li>
+          <li>ライトモードダークモードの切り替え</li>
         </ul>
       </div>
 
@@ -1179,13 +1195,14 @@
       </section>
 
       <section id="profilePage" class="profile-page"></section>
-    </main
-          <aside class="rightbar">
+    </main>
+
+    <aside class="rightbar">
       <div class="panel panel-hero">
         <div class="panel-label">Concept</div>
         <h2 class="panel-title">このサイトについて</h2>
         <p>
-   MonoArtは、画像投稿に特化したサイトです。そのため、自動で透かしが入るなど、著作権に配慮した設計となっています。SNSのような見た目でありながら、作品が見やすく配置される構成になっています。
+          MonoArtは、画像投稿に特化したサイトです。そのため、自動で透かしが入るなど、著作権に配慮した設計となっています。SNSのような見た目でありながら、作品が見やすく配置される構成になっています。
         </p>
         <p class="panel-quote">
           作品の雰囲気、作者名の透かし、短い言葉のやり取りまで含めて、
